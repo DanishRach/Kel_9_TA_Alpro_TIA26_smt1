@@ -1,4 +1,3 @@
-// Sistem Manajemen Jadwal Mingguan dan Tugas Mahasiswa
 
 #include <iostream>
 #include <iomanip>
@@ -36,12 +35,6 @@ int kapasitas = 2;
 int idBerikutnya = 1;
 Tanggal hariIni;
 
-string jadwal[7][3];
-string namaHari[7] = {
-    "Senin", "Selasa", "Rabu", "Kamis",
-    "Jumat", "Sabtu", "Minggu"
-};
-
 // ================= FUNGSI BANTU =================
 
 string namaStatus(Status s) {
@@ -58,6 +51,7 @@ string namaPrioritas(Prioritas p) {
 
 int bacaAngka(string pesan, int minimum, int maksimum) {
     int angka;
+
     while (true) {
         cout << pesan;
         cin >> angka;
@@ -66,17 +60,18 @@ int bacaAngka(string pesan, int minimum, int maksimum) {
             cin.clear();
             cin.ignore(1000, '\n');
             cout << "Input harus angka!\n";
-        } else if (angka < minimum || angka > maksimum) {
+        }
+        else if (angka < minimum || angka > maksimum) {
             cout << "Angka harus antara " << minimum
                  << " dan " << maksimum << "!\n";
-        } else {
+        }
+        else {
             cin.ignore(1000, '\n');
             return angka;
         }
     }
 }
 
-// Setiap bagian ada di file masing-masing
 // ================= ARRAY DINAMIS =================
 
 void siapkanArray() {
@@ -98,6 +93,7 @@ void perbesarArray() {
 
 // ================= FITUR UTAMA =================
 
+// Menambahkan tugas baru
 void tambahTugas() {
     if (jumlahTugas == kapasitas) {
         perbesarArray();
@@ -107,12 +103,15 @@ void tambahTugas() {
     t.id = idBerikutnya;
 
     cout << "\n--- Tambah Tugas Baru ---\n";
+
     cout << "Judul tugas : ";
     getline(cin, t.judul);
+
     cout << "Mata kuliah : ";
     getline(cin, t.matkul);
 
     cout << "Deadline:\n";
+
     t.deadline.hari = bacaAngka("  Tanggal (1-31) : ", 1, 31);
     t.deadline.bulan = bacaAngka("  Bulan (1-12)   : ", 1, 12);
     t.deadline.tahun = bacaAngka("  Tahun          : ", 2026, 2100);
@@ -120,25 +119,36 @@ void tambahTugas() {
     int p = bacaAngka(
         "Prioritas (1=Rendah, 2=Sedang, 3=Tinggi): ", 1, 3
     );
+
     t.prioritas = (Prioritas)(p - 1);
     t.status = BELUM;
 
-    t.jenis = bacaAngka("Jenis tugas (1=Tulis, 2=Online): ", 1, 2);
+    t.jenis = bacaAngka(
+        "Jenis tugas (1=Tulis, 2=Online): ", 1, 2
+    );
+
     if (t.jenis == 1) {
-        t.detail.jumlahHalaman = bacaAngka("Jumlah halaman : ", 1, 1000);
-    } else {
+        t.detail.jumlahHalaman = bacaAngka(
+            "Jumlah halaman : ", 1, 1000
+        );
+    }
+    else {
         cout << "Link tugas     : ";
         cin.getline(t.detail.linkTugas, 50);
     }
 
     daftarTugas[jumlahTugas] = t;
+
     jumlahTugas++;
     idBerikutnya++;
+
     cout << "Tugas berhasil ditambahkan!\n";
 }
 
+// Menampilkan seluruh tugas
 void tampilTugas() {
     cout << "\n--- Daftar Tugas ---\n";
+
     if (jumlahTugas == 0) {
         cout << "Belum ada tugas.\n";
         return;
@@ -150,10 +160,12 @@ void tampilTugas() {
          << setw(12) << "Deadline"
          << setw(10) << "Prioritas"
          << setw(8) << "Status" << endl;
+
     cout << string(74, '-') << endl;
 
     for (int i = 0; i < jumlahTugas; i++) {
         Tugas *t = &daftarTugas[i];
+
         string tgl = to_string(t->deadline.hari) + "/" +
                      to_string(t->deadline.bulan) + "/" +
                      to_string(t->deadline.tahun);
@@ -167,79 +179,111 @@ void tampilTugas() {
     }
 }
 
+// Mengubah status tugas menggunakan pointer
 void ubahStatus(Tugas *t, Status statusBaru) {
     t->status = statusBaru;
 }
 
+// Menu untuk mengubah status tugas
 void menuUbahStatus() {
     tampilTugas();
+
     if (jumlahTugas == 0) return;
 
     int id = bacaAngka("\nMasukkan ID tugas: ", 1, 100000);
+
     for (int i = 0; i < jumlahTugas; i++) {
         if (daftarTugas[i].id == id) {
             int s = bacaAngka(
-                "Status baru (1=Belum, 2=Proses, 3=Selesai): ", 1, 3
+                "Status baru (1=Belum, 2=Proses, 3=Selesai): ",
+                1, 3
             );
+
             ubahStatus(&daftarTugas[i], (Status)(s - 1));
+
             cout << "Status berhasil diubah.\n";
             return;
         }
     }
+
     cout << "ID tidak ditemukan.\n";
 }
 
+// Menghapus tugas berdasarkan ID
 void hapusTugas() {
     tampilTugas();
+
     if (jumlahTugas == 0) return;
 
-    int id = bacaAngka("\nMasukkan ID tugas yang dihapus: ", 1, 100000);
+    int id = bacaAngka(
+        "\nMasukkan ID tugas yang dihapus: ", 1, 100000
+    );
+
     for (int i = 0; i < jumlahTugas; i++) {
         if (daftarTugas[i].id == id) {
             for (int j = i; j < jumlahTugas - 1; j++) {
                 daftarTugas[j] = daftarTugas[j + 1];
             }
+
             jumlahTugas--;
+
             cout << "Tugas berhasil dihapus.\n";
             return;
         }
     }
+
     cout << "ID tidak ditemukan.\n";
 }
 
+// Menambahkan tiga data contoh
 void isiDataContoh() {
     string judul[3] = {
-        "Laprak Looping", "Esai K3 Burnout", "Proposal PKM"
+        "Laprak Looping",
+        "Esai K3 Burnout",
+        "Proposal PKM"
     };
-    string matkul[3] = {"Alpro", "K3", "PKM"};
+
+    string matkul[3] = {
+        "Alpro", "K3", "PKM"
+    };
+
     int hari[3] = {20, 25, 30};
 
     for (int i = 0; i < 3; i++) {
-        if (jumlahTugas == kapasitas) perbesarArray();
+        if (jumlahTugas == kapasitas) {
+            perbesarArray();
+        }
 
         Tugas t;
+
         t.id = idBerikutnya++;
         t.judul = judul[i];
         t.matkul = matkul[i];
+
         t.deadline.hari = hari[i];
         t.deadline.bulan = 11;
         t.deadline.tahun = 2026;
+
         t.prioritas = (Prioritas)i;
         t.status = BELUM;
+
         t.jenis = 1;
         t.detail.jumlahHalaman = 5 + i;
+
         daftarTugas[jumlahTugas++] = t;
     }
 }
 
-// Menukar isi dua data tugas menggunakan pointer
+// ================= SORTING =================
+
+// Menukar dua data tugas menggunakan pointer
 void tukar(Tugas *a, Tugas *b) {
     Tugas sementara = *a;
     *a = *b;
     *b = sementara;
 }
 
-// Mengurutkan tugas berdasarkan deadline terdekat menggunakan Bubble Sort
+// Mengurutkan tugas menggunakan Bubble Sort
 void urutkanTugas() {
     if (jumlahTugas == 0) {
         cout << "Belum ada tugas untuk diurutkan.\n";
@@ -251,6 +295,7 @@ void urutkanTugas() {
             int tanggal1 = daftarTugas[j].deadline.tahun * 10000 +
                            daftarTugas[j].deadline.bulan * 100 +
                            daftarTugas[j].deadline.hari;
+
             int tanggal2 = daftarTugas[j + 1].deadline.tahun * 10000 +
                            daftarTugas[j + 1].deadline.bulan * 100 +
                            daftarTugas[j + 1].deadline.hari;
@@ -262,8 +307,11 @@ void urutkanTugas() {
     }
 
     cout << "\nTugas berhasil diurutkan berdasarkan deadline terdekat.\n";
+
     tampilTugas();
 }
+
+// ================= SEARCHING =================
 
 // Mencari tugas berdasarkan nama mata kuliah
 void cariTugas() {
@@ -275,6 +323,7 @@ void cariTugas() {
     }
 
     string cariMatkul;
+
     cout << "Masukkan nama mata kuliah: ";
     getline(cin, cariMatkul);
 
@@ -292,10 +341,12 @@ void cariTugas() {
                      << setw(12) << "Deadline"
                      << setw(10) << "Prioritas"
                      << setw(8) << "Status" << endl;
+
                 cout << string(74, '-') << endl;
             }
 
             Tugas *t = &daftarTugas[i];
+
             string tgl = to_string(t->deadline.hari) + "/" +
                          to_string(t->deadline.bulan) + "/" +
                          to_string(t->deadline.tahun);
@@ -316,6 +367,8 @@ void cariTugas() {
     }
 }
 
+// ================= CEK DEADLINE =================
+
 // Menghitung sisa hari antara deadline dan hari ini
 int hitungSisaHari(Tanggal deadline) {
     int angkaDeadline = deadline.tahun * 365 +
@@ -329,7 +382,7 @@ int hitungSisaHari(Tanggal deadline) {
     return angkaDeadline - angkaHariIni;
 }
 
-// Mengecek tugas yang hampir atau sudah lewat deadline
+// Mengecek tugas yang hampir atau sudah melewati deadline
 void cekDeadline() {
     cout << "\n--- Cek Deadline Tugas ---\n";
 
@@ -346,10 +399,17 @@ void cekDeadline() {
         }
 
         adaTugasBelumSelesai = true;
-        int sisaHari = hitungSisaHari(daftarTugas[i].deadline);
 
-        cout << "\nJudul tugas : " << daftarTugas[i].judul << endl;
-        cout << "Mata kuliah : " << daftarTugas[i].matkul << endl;
+        int sisaHari = hitungSisaHari(
+            daftarTugas[i].deadline
+        );
+
+        cout << "\nJudul tugas : "
+             << daftarTugas[i].judul << endl;
+
+        cout << "Mata kuliah : "
+             << daftarTugas[i].matkul << endl;
+
         cout << "Deadline    : "
              << daftarTugas[i].deadline.hari << "/"
              << daftarTugas[i].deadline.bulan << "/"
@@ -358,10 +418,12 @@ void cekDeadline() {
         if (sisaHari < 0) {
             cout << "Status      : SUDAH LEWAT DEADLINE ("
                  << -sisaHari << " hari yang lalu)\n";
-        } else if (sisaHari <= 3) {
+        }
+        else if (sisaHari <= 3) {
             cout << "Status      : HAMPIR DEADLINE ("
                  << sisaHari << " hari lagi)\n";
-        } else {
+        }
+        else {
             cout << "Status      : Masih aman ("
                  << sisaHari << " hari lagi)\n";
         }
@@ -372,91 +434,77 @@ void cekDeadline() {
     }
 }
 
-// Mengisi jadwal kuliah mingguan
-void isiJadwal() {
-    // Mengosongkan seluruh sesi terlebih dahulu
-    for (int i = 0; i < 7; i++) {
-        for (int j = 0; j < 3; j++) {
-            jadwal[i][j] = "-";
-        }
-    }
-
-    // Contoh jadwal: indeks hari 0=Senin sampai 6=Minggu
-
-    jadwal[0][0] = "07.00 - PTI";
-    jadwal[0][1] = "10.30 - K3";
-    jadwal[0][2] = "13.10 - B Inggris";
-
-    jadwal[1][0] = "07.00 - Matematika";
-    jadwal[1][1] = "09.30 - OAK";
-
-    jadwal[3][0] = "10.30 - PAI";
-    jadwal[3][1] = "13.10 - AlProg";
-}
-
-// Menampilkan jadwal dalam bentuk tabel menggunakan nested loop
-void tampilJadwal() {
-    cout << "\n--- Jadwal Kuliah Mingguan ---\n";
-    cout << left << setw(12) << "Hari"
-         << setw(22) << "Sesi 1"
-         << setw(22) << "Sesi 2"
-         << setw(22) << "Sesi 3" << endl;
-    cout << string(78, '-') << endl;
-
-    for (int i = 0; i < 7; i++) {
-        cout << left << setw(12) << namaHari[i];
-        for (int j = 0; j < 3; j++) {
-            cout << setw(22) << jadwal[i][j];
-        }
-        cout << endl;
-    }
-}
-
 // ================= MENU UTAMA =================
 
 void tampilMenu() {
-    cout << "\n===== MANAJEMEN JADWAL DAN TUGAS MAHASISWA =====\n";
+    cout << "\n===== SISTEM MANAJEMEN TUGAS MAHASISWA =====\n";
+
     cout << "1. Tambah tugas\n";
     cout << "2. Lihat semua tugas\n";
     cout << "3. Ubah status tugas\n";
     cout << "4. Hapus tugas\n";
     cout << "5. Cari tugas (per mata kuliah)\n";
     cout << "6. Urutkan tugas\n";
-    cout << "7. Lihat jadwal kuliah mingguan\n";
-    cout << "8. Cek deadline\n";
+    cout << "7. Cek deadline\n";
     cout << "0. Keluar\n";
 }
 
+// ================= MAIN =================
+
 int main() {
     siapkanArray();
-    isiJadwal();
     isiDataContoh();
 
     cout << "Masukkan tanggal hari ini:\n";
+
     hariIni.hari = bacaAngka("  Tanggal (1-31) : ", 1, 31);
     hariIni.bulan = bacaAngka("  Bulan (1-12)   : ", 1, 12);
     hariIni.tahun = bacaAngka("  Tahun          : ", 2026, 2100);
 
     int pilihan;
+
     do {
         tampilMenu();
-        pilihan = bacaAngka("Pilih menu: ", 0, 8);
+
+        pilihan = bacaAngka("Pilih menu: ", 0, 7);
 
         switch (pilihan) {
-            case 1: tambahTugas(); break;
-            case 2: tampilTugas(); break;
-            case 3: menuUbahStatus(); break;
-            case 4: hapusTugas(); break;
-            case 5: cariTugas(); break;
-            case 6: urutkanTugas(); break;
-            case 7: tampilJadwal(); break;
-            case 8: cekDeadline(); break;
+            case 1:
+                tambahTugas();
+                break;
+
+            case 2:
+                tampilTugas();
+                break;
+
+            case 3:
+                menuUbahStatus();
+                break;
+
+            case 4:
+                hapusTugas();
+                break;
+
+            case 5:
+                cariTugas();
+                break;
+
+            case 6:
+                urutkanTugas();
+                break;
+
+            case 7:
+                cekDeadline();
+                break;
+
             case 0:
                 cout << "Terima kasih, program selesai.\n";
                 break;
         }
+
     } while (pilihan != 0);
 
     delete[] daftarTugas;
+
     return 0;
 }
