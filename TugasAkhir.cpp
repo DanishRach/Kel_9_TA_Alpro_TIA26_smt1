@@ -77,7 +77,161 @@ int bacaAngka(string pesan, int minimum, int maksimum) {
 }
 
 // Setiap bagian ada di file masing-masing
-#include "bagian_danish.h"
+// ================= ARRAY DINAMIS =================
+
+void siapkanArray() {
+    daftarTugas = new Tugas[kapasitas];
+}
+
+void perbesarArray() {
+    int kapasitasBaru = kapasitas * 2;
+    Tugas *baru = new Tugas[kapasitasBaru];
+
+    for (int i = 0; i < jumlahTugas; i++) {
+        baru[i] = daftarTugas[i];
+    }
+
+    delete[] daftarTugas;
+    daftarTugas = baru;
+    kapasitas = kapasitasBaru;
+}
+
+// ================= FITUR UTAMA =================
+
+void tambahTugas() {
+    if (jumlahTugas == kapasitas) {
+        perbesarArray();
+    }
+
+    Tugas t;
+    t.id = idBerikutnya;
+
+    cout << "\n--- Tambah Tugas Baru ---\n";
+    cout << "Judul tugas : ";
+    getline(cin, t.judul);
+    cout << "Mata kuliah : ";
+    getline(cin, t.matkul);
+
+    cout << "Deadline:\n";
+    t.deadline.hari = bacaAngka("  Tanggal (1-31) : ", 1, 31);
+    t.deadline.bulan = bacaAngka("  Bulan (1-12)   : ", 1, 12);
+    t.deadline.tahun = bacaAngka("  Tahun          : ", 2026, 2100);
+
+    int p = bacaAngka(
+        "Prioritas (1=Rendah, 2=Sedang, 3=Tinggi): ", 1, 3
+    );
+    t.prioritas = (Prioritas)(p - 1);
+    t.status = BELUM;
+
+    t.jenis = bacaAngka("Jenis tugas (1=Tulis, 2=Online): ", 1, 2);
+    if (t.jenis == 1) {
+        t.detail.jumlahHalaman = bacaAngka("Jumlah halaman : ", 1, 1000);
+    } else {
+        cout << "Link tugas     : ";
+        cin.getline(t.detail.linkTugas, 50);
+    }
+
+    daftarTugas[jumlahTugas] = t;
+    jumlahTugas++;
+    idBerikutnya++;
+    cout << "Tugas berhasil ditambahkan!\n";
+}
+
+void tampilTugas() {
+    cout << "\n--- Daftar Tugas ---\n";
+    if (jumlahTugas == 0) {
+        cout << "Belum ada tugas.\n";
+        return;
+    }
+
+    cout << left << setw(4) << "ID"
+         << setw(22) << "Judul"
+         << setw(18) << "Matkul"
+         << setw(12) << "Deadline"
+         << setw(10) << "Prioritas"
+         << setw(8) << "Status" << endl;
+    cout << string(74, '-') << endl;
+
+    for (int i = 0; i < jumlahTugas; i++) {
+        Tugas *t = &daftarTugas[i];
+        string tgl = to_string(t->deadline.hari) + "/" +
+                     to_string(t->deadline.bulan) + "/" +
+                     to_string(t->deadline.tahun);
+
+        cout << left << setw(4) << t->id
+             << setw(22) << t->judul
+             << setw(18) << t->matkul
+             << setw(12) << tgl
+             << setw(10) << namaPrioritas(t->prioritas)
+             << setw(8) << namaStatus(t->status) << endl;
+    }
+}
+
+void ubahStatus(Tugas *t, Status statusBaru) {
+    t->status = statusBaru;
+}
+
+void menuUbahStatus() {
+    tampilTugas();
+    if (jumlahTugas == 0) return;
+
+    int id = bacaAngka("\nMasukkan ID tugas: ", 1, 100000);
+    for (int i = 0; i < jumlahTugas; i++) {
+        if (daftarTugas[i].id == id) {
+            int s = bacaAngka(
+                "Status baru (1=Belum, 2=Proses, 3=Selesai): ", 1, 3
+            );
+            ubahStatus(&daftarTugas[i], (Status)(s - 1));
+            cout << "Status berhasil diubah.\n";
+            return;
+        }
+    }
+    cout << "ID tidak ditemukan.\n";
+}
+
+void hapusTugas() {
+    tampilTugas();
+    if (jumlahTugas == 0) return;
+
+    int id = bacaAngka("\nMasukkan ID tugas yang dihapus: ", 1, 100000);
+    for (int i = 0; i < jumlahTugas; i++) {
+        if (daftarTugas[i].id == id) {
+            for (int j = i; j < jumlahTugas - 1; j++) {
+                daftarTugas[j] = daftarTugas[j + 1];
+            }
+            jumlahTugas--;
+            cout << "Tugas berhasil dihapus.\n";
+            return;
+        }
+    }
+    cout << "ID tidak ditemukan.\n";
+}
+
+void isiDataContoh() {
+    string judul[3] = {
+        "Laprak Looping", "Esai K3 Burnout", "Proposal PKM"
+    };
+    string matkul[3] = {"Alpro", "K3", "PKM"};
+    int hari[3] = {20, 25, 30};
+
+    for (int i = 0; i < 3; i++) {
+        if (jumlahTugas == kapasitas) perbesarArray();
+
+        Tugas t;
+        t.id = idBerikutnya++;
+        t.judul = judul[i];
+        t.matkul = matkul[i];
+        t.deadline.hari = hari[i];
+        t.deadline.bulan = 11;
+        t.deadline.tahun = 2026;
+        t.prioritas = (Prioritas)i;
+        t.status = BELUM;
+        t.jenis = 1;
+        t.detail.jumlahHalaman = 5 + i;
+        daftarTugas[jumlahTugas++] = t;
+    }
+}
+
 #include "bagian_ali.h"
 #include "bagian_danis.h"
 
