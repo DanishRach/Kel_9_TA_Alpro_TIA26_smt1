@@ -232,7 +232,89 @@ void isiDataContoh() {
     }
 }
 
-#include "bagian_ali.h"
+// Menukar isi dua data tugas menggunakan pointer
+void tukar(Tugas *a, Tugas *b) {
+    Tugas sementara = *a;
+    *a = *b;
+    *b = sementara;
+}
+
+// Mengurutkan tugas berdasarkan deadline terdekat menggunakan Bubble Sort
+void urutkanTugas() {
+    if (jumlahTugas == 0) {
+        cout << "Belum ada tugas untuk diurutkan.\n";
+        return;
+    }
+
+    for (int i = 0; i < jumlahTugas - 1; i++) {
+        for (int j = 0; j < jumlahTugas - i - 1; j++) {
+            int tanggal1 = daftarTugas[j].deadline.tahun * 10000 +
+                           daftarTugas[j].deadline.bulan * 100 +
+                           daftarTugas[j].deadline.hari;
+            int tanggal2 = daftarTugas[j + 1].deadline.tahun * 10000 +
+                           daftarTugas[j + 1].deadline.bulan * 100 +
+                           daftarTugas[j + 1].deadline.hari;
+
+            if (tanggal1 > tanggal2) {
+                tukar(&daftarTugas[j], &daftarTugas[j + 1]);
+            }
+        }
+    }
+
+    cout << "\nTugas berhasil diurutkan berdasarkan deadline terdekat.\n";
+    tampilTugas();
+}
+
+// Mencari tugas berdasarkan nama mata kuliah
+void cariTugas() {
+    cout << "\n--- Cari Tugas Berdasarkan Mata Kuliah ---\n";
+
+    if (jumlahTugas == 0) {
+        cout << "Belum ada tugas.\n";
+        return;
+    }
+
+    string cariMatkul;
+    cout << "Masukkan nama mata kuliah: ";
+    getline(cin, cariMatkul);
+
+    bool ditemukan = false;
+
+    for (int i = 0; i < jumlahTugas; i++) {
+        if (daftarTugas[i].matkul == cariMatkul) {
+            if (!ditemukan) {
+                cout << "\nTugas dari mata kuliah "
+                     << cariMatkul << ":\n";
+
+                cout << left << setw(4) << "ID"
+                     << setw(22) << "Judul"
+                     << setw(18) << "Matkul"
+                     << setw(12) << "Deadline"
+                     << setw(10) << "Prioritas"
+                     << setw(8) << "Status" << endl;
+                cout << string(74, '-') << endl;
+            }
+
+            Tugas *t = &daftarTugas[i];
+            string tgl = to_string(t->deadline.hari) + "/" +
+                         to_string(t->deadline.bulan) + "/" +
+                         to_string(t->deadline.tahun);
+
+            cout << left << setw(4) << t->id
+                 << setw(22) << t->judul
+                 << setw(18) << t->matkul
+                 << setw(12) << tgl
+                 << setw(10) << namaPrioritas(t->prioritas)
+                 << setw(8) << namaStatus(t->status) << endl;
+
+            ditemukan = true;
+        }
+    }
+
+    if (!ditemukan) {
+        cout << "Tugas tidak ditemukan.\n";
+    }
+}
 
 // Menghitung sisa hari antara deadline dan hari ini
 int hitungSisaHari(Tanggal deadline) {
