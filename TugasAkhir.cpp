@@ -233,7 +233,102 @@ void isiDataContoh() {
 }
 
 #include "bagian_ali.h"
-#include "bagian_danis.h"
+
+// Menghitung sisa hari antara deadline dan hari ini
+int hitungSisaHari(Tanggal deadline) {
+    int angkaDeadline = deadline.tahun * 365 +
+                        deadline.bulan * 30 +
+                        deadline.hari;
+
+    int angkaHariIni = hariIni.tahun * 365 +
+                       hariIni.bulan * 30 +
+                       hariIni.hari;
+
+    return angkaDeadline - angkaHariIni;
+}
+
+// Mengecek tugas yang hampir atau sudah lewat deadline
+void cekDeadline() {
+    cout << "\n--- Cek Deadline Tugas ---\n";
+
+    if (jumlahTugas == 0) {
+        cout << "Belum ada tugas.\n";
+        return;
+    }
+
+    bool adaTugasBelumSelesai = false;
+
+    for (int i = 0; i < jumlahTugas; i++) {
+        if (daftarTugas[i].status == SELESAI) {
+            continue;
+        }
+
+        adaTugasBelumSelesai = true;
+        int sisaHari = hitungSisaHari(daftarTugas[i].deadline);
+
+        cout << "\nJudul tugas : " << daftarTugas[i].judul << endl;
+        cout << "Mata kuliah : " << daftarTugas[i].matkul << endl;
+        cout << "Deadline    : "
+             << daftarTugas[i].deadline.hari << "/"
+             << daftarTugas[i].deadline.bulan << "/"
+             << daftarTugas[i].deadline.tahun << endl;
+
+        if (sisaHari < 0) {
+            cout << "Status      : SUDAH LEWAT DEADLINE ("
+                 << -sisaHari << " hari yang lalu)\n";
+        } else if (sisaHari <= 3) {
+            cout << "Status      : HAMPIR DEADLINE ("
+                 << sisaHari << " hari lagi)\n";
+        } else {
+            cout << "Status      : Masih aman ("
+                 << sisaHari << " hari lagi)\n";
+        }
+    }
+
+    if (!adaTugasBelumSelesai) {
+        cout << "Semua tugas sudah selesai.\n";
+    }
+}
+
+// Mengisi jadwal kuliah mingguan
+void isiJadwal() {
+    // Mengosongkan seluruh sesi terlebih dahulu
+    for (int i = 0; i < 7; i++) {
+        for (int j = 0; j < 3; j++) {
+            jadwal[i][j] = "-";
+        }
+    }
+
+    // Contoh jadwal: indeks hari 0=Senin sampai 6=Minggu
+
+    jadwal[0][0] = "07.00 - PTI";
+    jadwal[0][1] = "10.30 - K3";
+    jadwal[0][2] = "13.10 - B Inggris";
+
+    jadwal[1][0] = "07.00 - Matematika";
+    jadwal[1][1] = "09.30 - OAK";
+
+    jadwal[3][0] = "10.30 - PAI";
+    jadwal[3][1] = "13.10 - AlProg";
+}
+
+// Menampilkan jadwal dalam bentuk tabel menggunakan nested loop
+void tampilJadwal() {
+    cout << "\n--- Jadwal Kuliah Mingguan ---\n";
+    cout << left << setw(12) << "Hari"
+         << setw(22) << "Sesi 1"
+         << setw(22) << "Sesi 2"
+         << setw(22) << "Sesi 3" << endl;
+    cout << string(78, '-') << endl;
+
+    for (int i = 0; i < 7; i++) {
+        cout << left << setw(12) << namaHari[i];
+        for (int j = 0; j < 3; j++) {
+            cout << setw(22) << jadwal[i][j];
+        }
+        cout << endl;
+    }
+}
 
 // ================= MENU UTAMA =================
 
